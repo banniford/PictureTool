@@ -532,17 +532,17 @@ QTimeEdit, QToolBox, QToolBox::tab, QToolBox::tab:selected {
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>30</y>
+      <y>10</y>
       <width>80</width>
-      <height>30</height>
+      <height>50</height>
      </rect>
     </property>
     <property name="font">
      <font>
       <family>Agency FB</family>
       <pointsize>12</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="lineWidth">
@@ -559,17 +559,17 @@ QTimeEdit, QToolBox, QToolBox::tab, QToolBox::tab:selected {
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>70</y>
+      <y>60</y>
       <width>50</width>
-      <height>30</height>
+      <height>50</height>
      </rect>
     </property>
     <property name="font">
      <font>
       <family>Agency FB</family>
       <pointsize>12</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="text">
@@ -579,16 +579,16 @@ QTimeEdit, QToolBox, QToolBox::tab, QToolBox::tab:selected {
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>120</x>
-      <y>30</y>
-      <width>450</width>
-      <height>30</height>
+      <x>100</x>
+      <y>10</y>
+      <width>471</width>
+      <height>50</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <family>Agency FB</family>
-      <pointsize>14</pointsize>
+      <family>微软雅黑</family>
+      <pointsize>12</pointsize>
      </font>
     </property>
     <property name="lineWidth">
@@ -599,21 +599,24 @@ QTimeEdit, QToolBox, QToolBox::tab, QToolBox::tab:selected {
     </property>
     <property name="textFormat">
      <enum>Qt::AutoText</enum>
+    </property>
+    <property name="wordWrap">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>120</x>
-      <y>70</y>
-      <width>450</width>
-      <height>30</height>
+      <x>100</x>
+      <y>60</y>
+      <width>471</width>
+      <height>50</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <family>Agency FB</family>
-      <pointsize>14</pointsize>
+      <family>微软雅黑</family>
+      <pointsize>12</pointsize>
      </font>
     </property>
     <property name="lineWidth">
@@ -624,13 +627,16 @@ QTimeEdit, QToolBox, QToolBox::tab, QToolBox::tab:selected {
     </property>
     <property name="textFormat">
      <enum>Qt::AutoText</enum>
+    </property>
+    <property name="wordWrap">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QWidget" name="gridLayoutWidget">
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>110</y>
+      <y>120</y>
       <width>531</width>
       <height>61</height>
      </rect>
@@ -816,8 +822,8 @@ QTimeEdit, QToolBox, QToolBox::tab, QToolBox::tab:selected {
    <widget class="QWidget" name="horizontalLayoutWidget_2">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>260</y>
+      <x>230</x>
+      <y>250</y>
       <width>141</width>
       <height>51</height>
      </rect>
@@ -860,51 +866,6 @@ QTimeEdit, QToolBox, QToolBox::tab, QToolBox::tab:selected {
       <width>531</width>
       <height>192</height>
      </rect>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="comboBox4">
-    <property name="geometry">
-     <rect>
-      <x>270</x>
-      <y>270</y>
-      <width>301</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Agency FB</family>
-      <pointsize>12</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="tabletTracking">
-     <bool>false</bool>
-    </property>
-    <property name="editable">
-     <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_7">
-    <property name="geometry">
-     <rect>
-      <x>190</x>
-      <y>260</y>
-      <width>81</width>
-      <height>49</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Agency FB</family>
-      <pointsize>12</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>表格字段：</string>
     </property>
    </widget>
    <widget class="QWidget" name="gridLayoutWidget_2">
