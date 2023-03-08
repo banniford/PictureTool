@@ -27,7 +27,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../image/faviceon.ico</normaloff>../image/faviceon.ico</iconset>
+    <normaloff>../assets/image/faviceon.ico</normaloff>../assets/image/faviceon.ico</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">/*
@@ -680,59 +680,6 @@ QTimeEdit, QToolBox, QToolBox::tab, QToolBox::tab:selected {
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QLabel" name="label_5">
-       <property name="font">
-        <font>
-         <family>Agency FB</family>
-         <pointsize>12</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>字体粗细：</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="comboBox1">
-       <property name="font">
-        <font>
-         <family>Agency FB</family>
-         <pointsize>12</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="tabletTracking">
-        <bool>false</bool>
-       </property>
-       <property name="editable">
-        <bool>false</bool>
-       </property>
-       <item>
-        <property name="text">
-         <string>2</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>3</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>4</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>5</string>
-        </property>
-       </item>
-      </widget>
-     </item>
      <item>
       <widget class="QLabel" name="label_8">
        <property name="font">
