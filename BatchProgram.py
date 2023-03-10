@@ -1,3 +1,4 @@
+
 from PyQt5.QtCore import QThread, pyqtSignal
 from PIL import Image, ImageDraw, ImageFont
 
@@ -5,28 +6,51 @@ class BatchProgram(QThread):
     msg = pyqtSignal(str)
     finish = pyqtSignal(str)
 
-    def __init__(self,imagePath,ListStr,color,text_size,position):
+    def __init__(self):
         QThread.__init__(self)
         self.flag = True
-        self.imagePath=imagePath
-        self.ListStr=ListStr
-        self.color=color
-        self.text_size=text_size
-        self.position=position
 
+    def set_arguments(self,imagePath,ListStr,color,text_size,position,output):
+        self.imagePath = imagePath
+        self.ListStr = ListStr
+        self.color = color
+        self.text_size = text_size
+        self.position = position
+        self.output=output
+        self.FontPosition = {"右上角": "right", "右下角": "right", "左上角": "left", "左下角": "left"}
 
     def run(self):
-        if self.flag==False:
-            self.msg.emit('停止成功')
-            return
+        success=0
+        fail=[]
         for i in range(len(self.imagePath)):
-            self.ImageAddText(self.imagePath[i],
+            if self.flag == False:
+                self.msg.emit('停止成功')
+                break
+            print(self.output + "/" + str(i) + ".jpg")
+            print(self.imagePath[i],
                               self.ListStr[i],
                               self.color,
                               self.text_size,
                               self.position)
-            if len(self.imagePath) % i == 10:
+            try:
+                img = self.ImageAddText(self.imagePath[i],
+                              self.ListStr[i],
+                              self.color,
+                              self.text_size,
+                              self.position)
+
+                img.save(self.output+"/"+str(i+1)+".jpg")
+                success+=1
+            except:
+                fail.append(self.ListStr[i])
+            if i % 10 == 0:
                 self.msg.emit("任务进度： "+str(i)+"/"+str(len(self.imagePath)))
+        self.msg.emit("处理完成,一共："+str(len(self.imagePath))+" 张图片")
+        self.finish.emit("成功处理：" + str(success) + " 张图片")
+        if len(fail)!=0:
+            self.msg.emit("其中第 " + str(fail) + " 张图片处理失败，请检查图片")
+
+
 
     def ImageAddText(self,img_path, text, text_color, text_size, position):
         img = Image.open(img_path)

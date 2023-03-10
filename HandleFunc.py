@@ -1,3 +1,5 @@
+import os
+import shutil
 from os import listdir
 from os.path import join
 import random
@@ -31,6 +33,7 @@ class PictureTool(QMainWindow):
         self.xlsx = None
         self.imagePath=[]
         self.ListStr=[]
+        self.output=""
 
         self.BatchProgram=BatchProgram()
         self.BatchProgram.msg.connect(self.BatchProgram_msg)
@@ -40,6 +43,8 @@ class PictureTool(QMainWindow):
         self.main_ui.pushButton_2.clicked.connect(self.LoadXlsxFile)
         self.main_ui.startbutton.clicked.connect(self.Start)
         self.main_ui.previewbutton.clicked.connect(self.PreviewImage)
+        self.main_ui.stopbutton.clicked.connect(self.Stop)
+        self.main_ui.deletebutton.clicked.connect(self.DeleteDir)
 
         # 判断文件是否是图片
 
@@ -49,11 +54,23 @@ class PictureTool(QMainWindow):
     def LoadDir(self):
         directory = QFileDialog.getExistingDirectory(self, "选取文件夹")  # 起始路径
         self.main_ui.label_3.setText(directory)
-        self.imagePath = [join(directory, x) for x in listdir(directory) if self.IsImageFile(x)]
-        if len(self.imagePath)==0:
-            self.main_ui.textEdit.append("请检查文件夹中是否有图片")
+        if  directory!="":
+            self.imagePath = [join(directory, x) for x in listdir(directory) if self.IsImageFile(x)]
+            if len(self.imagePath)==0:
+                self.main_ui.textEdit.append("请检查文件夹中是否有图片")
+            else:
+                self.output = directory+"(带水印)"
 
-
+    def Mkdir(self):
+        if os.path.exists(self.output):
+            return self.output
+        else:
+            try:
+                os.mkdir(self.output)
+            except:
+                self.main_ui.textEdit.append("创建 "+self.output+" 文件夹失败，请手动创建")
+                return ""
+            return self.output
 
     def LoadXlsxFile(self):
         self.xlsx = None
@@ -76,6 +93,7 @@ class PictureTool(QMainWindow):
         self.ListStr = []
 
     def Xlsx2list(self):
+        self.ListStr=[]
         for i in range(self.startNrows, self.xlsx.nrows):
             tmp = ""
             if self.xlsx.cell(i, 0).value == "":
@@ -86,7 +104,8 @@ class PictureTool(QMainWindow):
                 else:
                     tmp+= " "+str(self.xlsx.cell(i, j).value)
             self.ListStr.append(tmp)
-
+        print(len(self.ListStr))
+        print(len(self.imagePath))
     def ImageAddText(self,img_path, text, text_color, text_size, position):
         img = Image.open(img_path)
         # 创建一个可以在给定图像上绘图的对象
@@ -128,6 +147,8 @@ class PictureTool(QMainWindow):
 
     def BatchProgram_msg(self,msg):
         self.main_ui.textEdit.append(msg)
+
+
     def Start(self):
         if self.main_ui.label_3.text() == "" or self.main_ui.label_4.text() == "":
             self.main_ui.textEdit.append("请先选择 考生作品文件夹 和 考生信息表 ")
@@ -139,11 +160,23 @@ class PictureTool(QMainWindow):
         self.main_ui.deletebutton.setEnabled(False)
         self.main_ui.stopbutton.setEnabled(True)
         self.main_ui.textEdit.append("开始处理......")
-        try:
-            self.BatchProgram.start()
-        except:
-            self.train_start.flag = False
-            self.main_ui.textEdit.append("处理失败，请检查文件夹和表格")
+        self.BatchProgram.flag = True
+        dir = self.Mkdir()
+        if dir!="":
+            self.main_ui.textEdit.append("创建 " + dir +" 文件夹成功")
+            try:
+                self.BatchProgram.set_arguments(self.imagePath,
+                               self.ListStr,
+                               self.FontColor[self.main_ui.comboBox2.currentText()],
+                               int(self.main_ui.lineEdit.text()),
+                               self.main_ui.comboBox3.currentText(),self.output)
+                self.BatchProgram.start()
+            except:
+                self.main_ui.startbutton.setEnabled(True)
+                self.main_ui.deletebutton.setEnabled(True)
+                self.main_ui.stopbutton.setEnabled(False)
+                self.BatchProgram.flag = False
+                self.main_ui.textEdit.append("处理失败，请检查文件夹和表格")
 
     def Stop(self):
         self.main_ui.startbutton.setEnabled(True)
@@ -159,4 +192,11 @@ class PictureTool(QMainWindow):
         self.main_ui.stopbutton.setEnabled(False)
         self.main_ui.textEdit.append(msg)
         self.BatchProgram.flag = False
+
+    def DeleteDir(self):
+        print(self.output)
+        if self.output!="":
+            if os.path.exists(self.output):
+                shutil.rmtree(self.output)
+                self.main_ui.textEdit.append("删除 "+self.output+" 文件夹成功")
 
