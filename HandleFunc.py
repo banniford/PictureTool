@@ -2,15 +2,14 @@ import os
 import shutil
 from os import listdir
 from os.path import join
-import random
 import xlrd
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtWidgets import QMainWindow, QFileDialog
 import ui.picturetoolUI as UI
-from PIL import Image, ImageDraw, ImageFont
 import warnings
 
-from BatchProgram import BatchProgram
+from utils.BatchProgram import BatchProgram
+from utils.PreviewImage import PreviewImage
 
 warnings.filterwarnings("ignore")
 
@@ -24,7 +23,6 @@ class PictureTool(QMainWindow):
         self.main_ui.lineEdit.setText("80")
 
         self.FontColor={"红色": (255, 0, 0),"黑色":(0,0,0)}
-        self.FontPosition={"右上角": "right","右下角": "right","左上角": "left","左下角":"left"}
         # 需要读取的列
         self.xlsxPoistion=[0,1,8,9]
         # 起始行
@@ -35,9 +33,11 @@ class PictureTool(QMainWindow):
         self.ListStr=[]
         self.output=""
 
-        self.BatchProgram=BatchProgram()
-        self.BatchProgram.msg.connect(self.BatchProgram_msg)
-        self.BatchProgram.finish.connect(self.Finish)
+        self.BatchProgramThread=BatchProgram()
+        self.PreviewImageThread = PreviewImage()
+
+        self.BatchProgramThread.msg.connect(self.BatchProgram_msg)
+        self.BatchProgramThread.finish.connect(self.Finish)
         self.main_ui.stopbutton.setEnabled(False)
         self.main_ui.pushButton.clicked.connect(self.LoadDir)
         self.main_ui.pushButton_2.clicked.connect(self.LoadXlsxFile)
@@ -104,31 +104,6 @@ class PictureTool(QMainWindow):
                 else:
                     tmp+= " "+str(self.xlsx.cell(i, j).value)
             self.ListStr.append(tmp)
-        print(len(self.ListStr))
-        print(len(self.imagePath))
-    def ImageAddText(self,img_path, text, text_color, text_size, position):
-        img = Image.open(img_path)
-        # 创建一个可以在给定图像上绘图的对象
-        draw = ImageDraw.Draw(img)
-        # 字体的格式 这里的SimHei.ttf需要有这个字体
-        fontStyle = ImageFont.truetype("./assets/font/simhei.ttf", text_size, encoding="utf-8")
-        # 计算坐标
-        if position=="右下角":
-            left = img.size[0]-draw.textsize(text,font=fontStyle)[0]-30
-            top = img.size[1]-draw.textsize(text,font=fontStyle)[1]-30
-        elif position=="左下角":
-            left = 30
-            top = img.size[1]-draw.textsize(text,font=fontStyle)[1]-30
-        elif position=="左上角":
-            left = 30
-            top = 30
-        else:
-            # 默认"右上角"
-            left = img.size[0] - draw.textsize(text, font=fontStyle)[0] - 30
-            top = 30
-        # 绘制文本
-        draw.text((left, top), text, text_color, font=fontStyle, align=self.FontPosition[position])
-        return img
 
     def PreviewImage(self):
         if self.main_ui.label_3.text() == "" or self.main_ui.label_4.text() == "":
@@ -137,13 +112,22 @@ class PictureTool(QMainWindow):
         if len(self.ListStr)!=len(self.imagePath):
             self.main_ui.textEdit.append("表格数据内容与文件夹内容图片数量不匹配，请修改表格或重选文件夹")
             return
-        index = random.randint(0, len(self.ListStr))
-        img = self.ImageAddText(self.imagePath[index],
-                           self.ListStr[index],
-                           self.FontColor[self.main_ui.comboBox2.currentText()],
-                           int(self.main_ui.lineEdit.text()),
-                           self.main_ui.comboBox3.currentText())
-        img.show()
+        self.PreviewImageThread.set_arguments(self.imagePath,
+                               self.ListStr,
+                               self.FontColor[self.main_ui.comboBox2.currentText()],
+                               int(self.main_ui.lineEdit.text()),
+                               self.main_ui.comboBox3.currentText())
+        try:
+            self.PreviewImageThread.start()
+        except:
+            self.main_ui.textEdit.append("预览失败")
+        # index = random.randint(0, len(self.ListStr))
+        # img = ImageAddText(self.imagePath[index],
+        #                    self.ListStr[index],
+        #                    self.FontColor[self.main_ui.comboBox2.currentText()],
+        #                    int(self.main_ui.lineEdit.text()),
+        #                    self.main_ui.comboBox3.currentText())
+        # img.show()
 
     def BatchProgram_msg(self,msg):
         self.main_ui.textEdit.append(msg)
@@ -160,22 +144,22 @@ class PictureTool(QMainWindow):
         self.main_ui.deletebutton.setEnabled(False)
         self.main_ui.stopbutton.setEnabled(True)
         self.main_ui.textEdit.append("开始处理......")
-        self.BatchProgram.flag = True
+        self.BatchProgramThread.flag = True
         dir = self.Mkdir()
         if dir!="":
             self.main_ui.textEdit.append("创建 " + dir +" 文件夹成功")
+            self.BatchProgramThread.set_arguments(self.imagePath,
+                                                  self.ListStr,
+                                                  self.FontColor[self.main_ui.comboBox2.currentText()],
+                                                  int(self.main_ui.lineEdit.text()),
+                                                  self.main_ui.comboBox3.currentText(), self.output)
             try:
-                self.BatchProgram.set_arguments(self.imagePath,
-                               self.ListStr,
-                               self.FontColor[self.main_ui.comboBox2.currentText()],
-                               int(self.main_ui.lineEdit.text()),
-                               self.main_ui.comboBox3.currentText(),self.output)
-                self.BatchProgram.start()
+                self.BatchProgramThread.start()
             except:
                 self.main_ui.startbutton.setEnabled(True)
                 self.main_ui.deletebutton.setEnabled(True)
                 self.main_ui.stopbutton.setEnabled(False)
-                self.BatchProgram.flag = False
+                self.BatchProgramThread.flag = False
                 self.main_ui.textEdit.append("处理失败，请检查文件夹和表格")
 
     def Stop(self):
@@ -183,7 +167,7 @@ class PictureTool(QMainWindow):
         self.main_ui.deletebutton.setEnabled(True)
         self.main_ui.stopbutton.setEnabled(False)
         self.main_ui.textEdit.append("正在停止处理")
-        self.BatchProgram.flag = False
+        self.BatchProgramThread.flag = False
 
 
     def Finish(self,msg):
@@ -191,10 +175,9 @@ class PictureTool(QMainWindow):
         self.main_ui.deletebutton.setEnabled(True)
         self.main_ui.stopbutton.setEnabled(False)
         self.main_ui.textEdit.append(msg)
-        self.BatchProgram.flag = False
+        self.BatchProgramThread.flag = False
 
     def DeleteDir(self):
-        print(self.output)
         if self.output!="":
             if os.path.exists(self.output):
                 shutil.rmtree(self.output)

@@ -2,7 +2,7 @@
 import sys
 
 from HandleFunc import PictureTool
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication
 
 
 if __name__ == '__main__':
