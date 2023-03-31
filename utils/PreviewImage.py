@@ -16,7 +16,7 @@ class PreviewImage(QThread):
 
 
     def run(self):
-        index = random.randint(0, len(self.ListStr))
+        index = random.randint(1, len(self.ListStr))
         img = ImageAddText(self.imagePath[index],
                            self.ListStr[index],
                            self.color,

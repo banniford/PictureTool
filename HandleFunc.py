@@ -26,11 +26,11 @@ class PictureTool(QMainWindow):
         # 需要读取的列
         self.xlsxPoistion=[0,1,8,9]
         # 起始行
-        self.startNrows=2
+        self.startNrows=0
 
         self.xlsx = None
-        self.imagePath=[]
-        self.ListStr=[]
+        self.imagePath={}
+        self.ListStr= {}
         self.output=""
 
         self.BatchProgramThread=BatchProgram()
@@ -45,8 +45,14 @@ class PictureTool(QMainWindow):
         self.main_ui.previewbutton.clicked.connect(self.PreviewImage)
         self.main_ui.stopbutton.clicked.connect(self.Stop)
         self.main_ui.deletebutton.clicked.connect(self.DeleteDir)
+        self.remarks()
 
         # 判断文件是否是图片
+    def remarks(self):
+        self.main_ui.textEdit.append("使用前请先确认以下内容：")
+        self.main_ui.textEdit.append("①图片文件夹 图片数量 与 表格内序号数量 是否正确")
+        self.main_ui.textEdit.append("②表格内左下角表名必须叫 信息录入，如果不是需要改为 信息录入")
+        self.main_ui.textEdit.append("③图片文件夹 图片 命名规则必须为 数字+空格+其他内容 ，例如：“1 张三十级.jpg”，其中数字必须要和表格内序号列一一对应。")
 
     def IsImageFile(self, filename):
         return any(filename.endswith(extension) for extension in ['.png', '.jpg', '.jpeg', '.PNG', '.JPG', '.JPEG'])
@@ -55,11 +61,7 @@ class PictureTool(QMainWindow):
         directory = QFileDialog.getExistingDirectory(self, "选取文件夹")  # 起始路径
         self.main_ui.label_3.setText(directory)
         if  directory!="":
-            self.imagePath = [join(directory, x) for x in listdir(directory) if self.IsImageFile(x)]
-            if len(self.imagePath)==0:
-                self.main_ui.textEdit.append("请检查文件夹中是否有图片")
-            else:
-                self.output = directory+"(带水印)"
+            self.SortPicturePath(directory)
 
     def Mkdir(self):
         if os.path.exists(self.output):
@@ -81,29 +83,39 @@ class PictureTool(QMainWindow):
         try:
             self.xlsx = xlrd.open_workbook(openfile_name[0]).sheet_by_name("信息录入")
             self.main_ui.label_4.setText(openfile_name[0])
-            self.Xlsx2list()
-        except:
+            self.startNrows=self.CheckStartLine()
+            if self.startNrows==None:
+                self.ClearXlsxinfo()
+                self.main_ui.textEdit.append("请检查该表格中 序号 栏内容是否正确必须从数字 1 开始")
+            else:
+                self.Xlsx2list()
+        except Exception as e:
+            print(e)
             self.ClearXlsxinfo()
-            self.main_ui.textEdit.append("请检查表格是否损坏，该表格中 “信息录入”表 是否存在")
+            self.main_ui.textEdit.append("请检查该表格中 “信息录入”表 是否存在")
 
 
     def ClearXlsxinfo(self):
         self.main_ui.label_4.setText("")
         self.xlsx = None
-        self.ListStr = []
+        self.ListStr = {}
 
     def Xlsx2list(self):
-        self.ListStr=[]
+        self.ListStr= {}
         for i in range(self.startNrows, self.xlsx.nrows):
             tmp = ""
             if self.xlsx.cell(i, 0).value == "":
                 break
             for j in self.xlsxPoistion:
+
                 if type(self.xlsx.cell(i, j).value)==float:
                     tmp+=str(int(self.xlsx.cell(i, j).value))
                 else:
                     tmp+= " "+str(self.xlsx.cell(i, j).value)
-            self.ListStr.append(tmp)
+            print(tmp)
+            self.ListStr[int(self.xlsx.cell(i, 0).value)]=tmp
+
+        print(self.ListStr)
 
     def PreviewImage(self):
         if self.main_ui.label_3.text() == "" or self.main_ui.label_4.text() == "":
@@ -183,3 +195,20 @@ class PictureTool(QMainWindow):
                 shutil.rmtree(self.output)
                 self.main_ui.textEdit.append("删除 "+self.output+" 文件夹成功")
 
+    def CheckStartLine(self):
+        for i in range(0, self.xlsx.nrows):
+            if str(self.xlsx.cell(i, 0).value)=="1.0":
+                print(i)
+                return i
+
+
+    def SortPicturePath(self,directory):
+        for x in listdir(directory):
+            if self.IsImageFile(x):
+                self.imagePath[int(x.split(" ")[0])]=join(directory, x)
+        print(self.imagePath)
+
+        if len(self.imagePath) == 0:
+            self.main_ui.textEdit.append("请检查文件夹中是否有图片")
+        else:
+            self.output = directory + "(带水印)"
