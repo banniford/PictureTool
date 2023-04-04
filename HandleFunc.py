@@ -59,7 +59,6 @@ class PictureTool(QMainWindow):
 
     def LoadDir(self):
         directory = QFileDialog.getExistingDirectory(self, "选取文件夹")  # 起始路径
-        self.main_ui.label_3.setText(directory)
         if  directory!="":
             self.SortPicturePath(directory)
 
@@ -203,12 +202,21 @@ class PictureTool(QMainWindow):
 
 
     def SortPicturePath(self,directory):
-        for x in listdir(directory):
-            if self.IsImageFile(x):
-                self.imagePath[int(x.split(" ")[0])]=join(directory, x)
-        print(self.imagePath)
-
-        if len(self.imagePath) == 0:
-            self.main_ui.textEdit.append("请检查文件夹中是否有图片")
-        else:
-            self.output = directory + "(带水印)"
+        try:
+            index=0
+            err=""
+            for x in listdir(directory):
+                if self.IsImageFile(x):
+                    index+=1
+                    err=x
+                    self.imagePath[int(x.split(" ")[0])]=join(directory, x)
+            print(self.imagePath)
+            if len(self.imagePath) == 0:
+                self.main_ui.textEdit.append("请检查文件夹中是否有图片")
+            else:
+                self.output = directory + "(带水印)"
+                self.main_ui.label_3.setText(directory)
+        except:
+            self.main_ui.textEdit.append("请检查文件夹中第 "+str(index)+" 张图片 "+x+" 是否明明规范，图片文件夹 图片 命名规则必须为 数字+空格+其他内容 ，例如：“1 张三十级.jpg”，其中数字必须要和表格内序号列一一对应。")
+            self.output=""
+            self.imagePath={}
