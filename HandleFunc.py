@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 from os import listdir
 from os.path import join
@@ -53,6 +54,7 @@ class PictureTool(QMainWindow):
         self.main_ui.textEdit.append("①图片文件夹 图片数量 与 表格内序号数量 是否正确")
         self.main_ui.textEdit.append("②表格内左下角表名必须叫 信息录入，如果不是需要改为 信息录入")
         self.main_ui.textEdit.append("③图片文件夹 图片 命名规则必须为 数字+空格+其他内容 ，例如：“1 张三十级.jpg”，其中数字必须要和表格内序号列一一对应。")
+        self.main_ui.textEdit.append("序号必须唯一且连续，不能相同")
 
     def IsImageFile(self, filename):
         return any(filename.endswith(extension) for extension in ['.png', '.jpg', '.jpeg', '.PNG', '.JPG', '.JPEG'])
@@ -114,7 +116,7 @@ class PictureTool(QMainWindow):
             print(tmp)
             self.ListStr[int(self.xlsx.cell(i, 0).value)]=tmp
 
-        print(self.ListStr)
+        # print(len(self.ListStr))
 
     def PreviewImage(self):
         if self.main_ui.label_3.text() == "" or self.main_ui.label_4.text() == "":
@@ -202,21 +204,26 @@ class PictureTool(QMainWindow):
 
 
     def SortPicturePath(self,directory):
+        index=0
+        err=""
         try:
-            index=0
-            err=""
             for x in listdir(directory):
                 if self.IsImageFile(x):
-                    index+=1
+                    index=int(re.search(r'\d+', x).group())
                     err=x
-                    self.imagePath[int(x.split(" ")[0])]=join(directory, x)
-            print(self.imagePath)
+                    if index in self.imagePath:
+                        err=x
+                        self.main_ui.textEdit.append("请检查文件夹中第 "+str(index)+" 张图片 "+err+" 是否序号重名，序号必须唯一且连续。")
+                        return
+                    self.imagePath[index]=join(directory, x)
+            # print(self.imagePath)
+            # print(len(self.imagePath))
             if len(self.imagePath) == 0:
                 self.main_ui.textEdit.append("请检查文件夹中是否有图片")
             else:
                 self.output = directory + "(带水印)"
                 self.main_ui.label_3.setText(directory)
         except:
-            self.main_ui.textEdit.append("请检查文件夹中第 "+str(index)+" 张图片 "+x+" 是否明明规范，图片文件夹 图片 命名规则必须为 数字+空格+其他内容 ，例如：“1 张三十级.jpg”，其中数字必须要和表格内序号列一一对应。")
+            self.main_ui.textEdit.append("请检查文件夹中第 "+str(index)+" 张图片 "+err+" 是否明明规范，图片文件夹 图片 命名规则必须为 数字+空格+其他内容 ，例如：“1 张三十级.jpg”，其中数字必须要和表格内序号列一一对应。")
             self.output=""
             self.imagePath={}
