@@ -808,27 +808,14 @@ QTimeEdit, QToolBox, QToolBox::tab, QToolBox::tab:selected {
    <widget class="QWidget" name="gridLayoutWidget_2">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>320</y>
-      <width>531</width>
+      <x>180</x>
+      <y>310</y>
+      <width>391</width>
       <height>61</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout_2">
      <item row="0" column="2">
-      <widget class="QPushButton" name="stopbutton">
-       <property name="font">
-        <font>
-         <family>Agency FB</family>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>停止处理</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="3">
       <widget class="QPushButton" name="deletebutton">
        <property name="font">
         <font>
@@ -841,7 +828,7 @@ QTimeEdit, QToolBox, QToolBox::tab, QToolBox::tab:selected {
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
+     <item row="0" column="0">
       <widget class="QPushButton" name="startbutton">
        <property name="font">
         <font>
@@ -854,8 +841,8 @@ QTimeEdit, QToolBox, QToolBox::tab, QToolBox::tab:selected {
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QPushButton" name="previewbutton">
+     <item row="0" column="1">
+      <widget class="QPushButton" name="stopbutton">
        <property name="font">
         <font>
          <family>Agency FB</family>
@@ -863,7 +850,7 @@ QTimeEdit, QToolBox, QToolBox::tab, QToolBox::tab:selected {
         </font>
        </property>
        <property name="text">
-        <string>预览效果</string>
+        <string>停止处理</string>
        </property>
       </widget>
      </item>
@@ -878,6 +865,40 @@ QTimeEdit, QToolBox, QToolBox::tab, QToolBox::tab:selected {
       <height>211</height>
      </rect>
     </property>
+   </widget>
+   <widget class="QPushButton" name="previewbutton">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>325</y>
+      <width>141</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Agency FB</family>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>预览效果</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comboBoxId">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>360</y>
+      <width>141</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>随机</string>
+     </property>
+    </item>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>

@@ -22,16 +22,16 @@ class PictureTool(QMainWindow):
 
         self.main_ui.lineEdit.setValidator(QIntValidator(0, 100))
         self.main_ui.lineEdit.setText("80")
-
+        # 选择的颜色
         self.FontColor={"红色": (255, 0, 0),"黑色":(0,0,0)}
         # 需要读取的列
         self.xlsxPoistion=[0,1,8,9]
         # 起始行
         self.startNrows=0
-
+        # 预览图片列表
         self.xlsx = None
         self.imagePath={}
-        self.ListStr= {}
+        self.ListStr= {0:"随机"}
         self.output=""
 
         self.BatchProgramThread=BatchProgram()
@@ -54,7 +54,7 @@ class PictureTool(QMainWindow):
         self.main_ui.textEdit.append("①图片文件夹 图片数量 与 表格内序号数量 是否正确")
         self.main_ui.textEdit.append("②表格内左下角表名必须叫 信息录入，如果不是需要改为 信息录入")
         self.main_ui.textEdit.append("③图片文件夹 图片 命名规则必须为 数字+空格+其他内容 ，例如：“1 张三十级.jpg”，其中数字必须要和表格内序号列一一对应。")
-        self.main_ui.textEdit.append("序号必须唯一且连续，不能相同")
+        self.main_ui.textEdit.append("④图片文件夹内图片名称的序号必须唯一且连续，不能相同")
 
     def IsImageFile(self, filename):
         return any(filename.endswith(extension) for extension in ['.png', '.jpg', '.jpeg', '.PNG', '.JPG', '.JPEG'])
@@ -95,14 +95,19 @@ class PictureTool(QMainWindow):
             self.ClearXlsxinfo()
             self.main_ui.textEdit.append("请检查该表格中 “信息录入”表 是否存在")
 
+    def AddSelectComboBoxId(self):
+        self.main_ui.comboBoxId.clear()
+        for _,v in self.ListStr.items():
+            self.main_ui.comboBoxId.addItem(v)
 
     def ClearXlsxinfo(self):
         self.main_ui.label_4.setText("")
         self.xlsx = None
-        self.ListStr = {}
+        self.ListStr = {0:"随机"}
+        self.AddSelectComboBoxId()
 
     def Xlsx2list(self):
-        self.ListStr= {}
+        self.ListStr= {0:"随机"}
         for i in range(self.startNrows, self.xlsx.nrows):
             tmp = ""
             if self.xlsx.cell(i, 0).value == "":
@@ -113,20 +118,23 @@ class PictureTool(QMainWindow):
                     tmp+=str(int(self.xlsx.cell(i, j).value))
                 else:
                     tmp+= " "+str(self.xlsx.cell(i, j).value)
-            print(tmp)
+            # print(tmp)
             self.ListStr[int(self.xlsx.cell(i, 0).value)]=tmp
 
-        # print(len(self.ListStr))
+        # print(self.ListStr)
+        self.AddSelectComboBoxId()
+
 
     def PreviewImage(self):
         if self.main_ui.label_3.text() == "" or self.main_ui.label_4.text() == "":
             self.main_ui.textEdit.append("请先选择 考生作品文件夹 和 考生信息表 ")
             return
-        if len(self.ListStr)!=len(self.imagePath):
+        if len(self.ListStr)-1!=len(self.imagePath):
             self.main_ui.textEdit.append("表格数据内容与文件夹内容图片数量不匹配，请修改表格或重选文件夹")
             return
         self.PreviewImageThread.set_arguments(self.imagePath,
                                self.ListStr,
+                               self.main_ui.comboBoxId.currentText(),
                                self.FontColor[self.main_ui.comboBox2.currentText()],
                                int(self.main_ui.lineEdit.text()),
                                self.main_ui.comboBox3.currentText())
@@ -134,13 +142,6 @@ class PictureTool(QMainWindow):
             self.PreviewImageThread.start()
         except:
             self.main_ui.textEdit.append("预览失败")
-        # index = random.randint(0, len(self.ListStr))
-        # img = ImageAddText(self.imagePath[index],
-        #                    self.ListStr[index],
-        #                    self.FontColor[self.main_ui.comboBox2.currentText()],
-        #                    int(self.main_ui.lineEdit.text()),
-        #                    self.main_ui.comboBox3.currentText())
-        # img.show()
 
     def BatchProgram_msg(self,msg):
         self.main_ui.textEdit.append(msg)
@@ -150,7 +151,7 @@ class PictureTool(QMainWindow):
         if self.main_ui.label_3.text() == "" or self.main_ui.label_4.text() == "":
             self.main_ui.textEdit.append("请先选择 考生作品文件夹 和 考生信息表 ")
             return
-        if len(self.ListStr) != len(self.imagePath):
+        if len(self.ListStr)-1 != len(self.imagePath):
             self.main_ui.textEdit.append("表格数据内容与文件夹内容图片数量不匹配，请修改表格或重选文件夹")
             return
         self.main_ui.startbutton.setEnabled(False)
@@ -161,6 +162,7 @@ class PictureTool(QMainWindow):
         dir = self.Mkdir()
         if dir!="":
             self.main_ui.textEdit.append("创建 " + dir +" 文件夹成功")
+            # print(self.imagePath)
             self.BatchProgramThread.set_arguments(self.imagePath,
                                                   self.ListStr,
                                                   self.FontColor[self.main_ui.comboBox2.currentText()],

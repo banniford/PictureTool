@@ -23,12 +23,12 @@ class BatchProgram(QThread):
     def run(self):
         success=0
         fail=[]
-        for k in self.imagePath:
+        for k,v in self.imagePath.items():
             if self.flag == False:
                 self.msg.emit('停止成功')
                 break
             try:
-                img = ImageAddText(self.imagePath[k],
+                img = ImageAddText(v,
                               self.ListStr[k],
                               self.color,
                               self.text_size,
@@ -39,10 +39,10 @@ class BatchProgram(QThread):
             except:
                 fail.append(self.ListStr[k])
             if success % 10 == 0:
-                self.msg.emit("任务进度： "+str(k)+"/"+str(len(self.imagePath)))
+                self.msg.emit("任务进度： "+str(success)+"/"+str(len(self.imagePath)))
         self.msg.emit("处理完成,一共："+str(len(self.imagePath))+" 张图片")
         self.finish.emit("成功处理：" + str(success) + " 张图片")
         if len(fail)!=0:
-            self.msg.emit("其中第 " + str(fail) + " 张图片处理失败，请检查图片")
+            self.msg.emit("其中图片 " + str(fail) + " 处理失败，请检查图片")
 
 
